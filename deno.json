@@ -1,5 +1,5 @@
 {
   "name": "@panha/scrape",
   "version": "1.0.0",
-  "exports": "./index.js"
+  "exports": "./index.ts"
 }
