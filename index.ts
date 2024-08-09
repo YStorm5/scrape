@@ -2,7 +2,7 @@ import {
   DOMParser,
   type Element,
   type HTMLDocument,
-} from "jsr:@b-fuze/deno-dom";
+} from "jsr:@b-fuze/deno-dom@0.1.47";
 import { removeBrackets, toCamelCase } from "./utils.ts";
 
 interface TableData {
