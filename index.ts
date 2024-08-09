@@ -2,7 +2,7 @@ import {
   DOMParser,
   type Element,
   type HTMLDocument,
-} from "https://deno.land/x/deno_dom@v0.1.46/deno-dom-wasm.ts";
+} from "jsr:@b-fuze/deno-dom";
 import { removeBrackets, toCamelCase } from "./utils.ts";
 
 interface TableData {
@@ -168,7 +168,7 @@ class Scrape {
  * @param url - url of website to scrape
 
  */
-export async function scrape(url: string) {
+export async function scrape(url: string): Promise<Scrape> {
   if (url == null) {
     throw "URL can't be empty!";
   }

@@ -1,5 +1,8 @@
 {
   "name": "@panha/scrape",
   "version": "1.0.0",
-  "exports": "./index.ts"
+  "exports": "./index.ts",
+  "imports": {
+    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.47"
+  }
 }

@@ -1,6 +1,6 @@
 # Scrape
 
-Module to scrape data from a website using [Deno](https://deno.land/) and [Deno Dom](https://deno.land/x/deno_dom@v0.1.46).
+Module to scrape data from a website using [Deno](https://deno.land/) and [Deno Dom](https://jsr.io/@b-fuze/deno-dom).
 
 ## Installation
 
@@ -9,7 +9,8 @@ To use this code, you need to have Deno installed on your system. You can instal
 ## Usage
 
 ```javascript
-import { scrape } from "https://deno.land/x/scrape@v1.0.0/index.ts";
+import { scrape } from "https://deno.land/x/scrape@v1.0.0/index.ts"; // non jsr import
+import { scrape } from "@panha/scrape/"; // jsr import
 
 const scraper = await scrape(url);
 ```
