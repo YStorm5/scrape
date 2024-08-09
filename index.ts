@@ -1,7 +1,7 @@
 import {
   DOMParser,
-  Element,
-  HTMLDocument,
+  type Element,
+  type HTMLDocument,
 } from "https://deno.land/x/deno_dom@v0.1.46/deno-dom-wasm.ts";
 import { removeBrackets, toCamelCase } from "./utils.ts";
 
