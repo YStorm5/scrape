@@ -88,7 +88,7 @@ class Scrape {
   /**
    * Scrape data from target `table` element.
    * @param {string} selector - The CSS selector of the target table element.
-   * @param {number} [skip] - Indicate how many rows to consider as header inside <tbody>. If the table has <thead>, this parameter is not required.
+   * @param {number} [skip] - Indicate how many rows to consider as header inside `<tbody>`. If the table has `<thead>`, this parameter is not required.
    * @returns TableData[] - An array of TableData.
    */
   table(selector: string, skip?: number): TableData[] {
@@ -102,14 +102,17 @@ class Scrape {
     if (_table == null) throw new Error("There is no target table");
     const _tbody = _table.querySelector("tbody");
     if (_tbody == null) throw new Error("There is no tbody inside the table");
-    const _thead = _table.firstElementChild;
-    if (_thead?.tagName == "THEAD") {
-      _hasHead = true;
-      _thead.querySelectorAll("tr").forEach((e) => {
-        const _element = e as Element;
-        _skipRows.push(_element);
-      });
-      _skip = _skipRows.length;
+    const _thead = _table.children;
+    for (const ele of _thead) {
+      if (ele.nodeName == "THEAD") {
+        _hasHead = true;
+        (ele as Element).querySelectorAll("tr").forEach((e) => {
+          const _element = e as Element;
+          _skipRows.push(_element);
+        });
+        _skip = _skipRows.length;
+        break;
+      }
     }
     _tbody.querySelectorAll("tr").forEach((e, i) => {
       const _element = e as Element;
@@ -132,7 +135,8 @@ class Scrape {
           if (_cols == 1) {
             _header[toCamelCase(removeBrackets(col.innerText))] = _value
               .shift()
-              ?.toString();
+              ?.toString()
+              .trim();
           } else {
             if (same) {
               ++i;
