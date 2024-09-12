@@ -1,12 +1,9 @@
-import {
-  DOMParser,
-  type Element,
-  type HTMLDocument,
-} from "jsr:@b-fuze/deno-dom@0.1.47";
+import { DOMParser, type Element, type HTMLDocument } from "@b-fuze/deno-dom";
 import { removeBrackets, toCamelCase } from "./utils.ts";
+import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 
 interface TableData {
-  [key: string]: string | number | TableData | undefined;
+  [key: string]: string | number | TableData | undefined; // import Scrape from scape
 }
 
 class Scrape {
@@ -126,7 +123,7 @@ class Scrape {
     function generateColumn(i: number, _value: string[], _cols?: number) {
       const _header: TableData = {};
       if (i < _skipRows.length) {
-        const childrens = Array.from(_skipRows[i].childNodes); // 3
+        const childrens = Array.from(_skipRows[i].children); // 3
         let same = true;
         childrens.slice(0, _cols ?? childrens.length).forEach((v) => {
           const col = v as Element;
@@ -152,7 +149,7 @@ class Scrape {
 
     const tds = _rows?.splice(0, _rows.length).map((e) => {
       const rows: string[] = [];
-      e.childNodes.forEach((v) => {
+      for (const v of e.children) {
         const el = v as Element;
         const colSpan = el.getAttribute("colspan") ?? 1;
         const cols = +colSpan;
@@ -161,7 +158,7 @@ class Scrape {
           .forEach((v) => {
             rows.push(removeBrackets(v));
           });
-      });
+      }
       return generateColumn(0, rows);
     });
     return tds;
@@ -169,16 +166,39 @@ class Scrape {
 }
 /**
  * `function` to scrape data from website
- * @param url - url of website to scrape
-
+ * @param url - Url of website to scrape
+ * @param wait - Wait for website to load. This is useful if that website need to run some script first before populate element.
+ * @example
+ * // Wait for 1 second before fetching
+ * await scrape("https://www.example.com",1000);
+ *
+ * // Wait for specific html element to load
+ * await scrape("https://www.example.com","h1");
  */
-export async function scrape(url: string): Promise<Scrape> {
+export async function scrape(
+  url: string,
+  wait?: number | string
+): Promise<Scrape> {
   if (url == null) {
     throw "URL can't be empty!";
   }
-  const req = await fetch(url);
-  const res = await req.text();
-  const removeScript = res.replace(
+  let html: string = "";
+  if (wait != null) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(url);
+    if (typeof wait == "number") {
+      await new Promise((r) => setTimeout(r, wait));
+    } else if (typeof wait == "string") {
+      await page.waitForSelector(wait);
+    }
+    html = await page.content();
+    await browser.close();
+  } else {
+    const req = await fetch(url);
+    html = await req.text();
+  }
+  const removeScript = html.replace(
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
     ""
   );

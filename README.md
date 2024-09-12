@@ -1,6 +1,6 @@
 # Scrape
 
-Module to scrape data from a website using [Deno](https://deno.land/) and [Deno Dom](https://jsr.io/@b-fuze/deno-dom).
+Module to scrape data from a website using [Deno](https://deno.land/), [Deno Dom](https://jsr.io/@b-fuze/deno-dom) and [Puppeteer](https://deno.land/x/puppeteer@16.2.0).
 
 ## Installation
 
@@ -8,11 +8,25 @@ To use this code, you need to have Deno installed on your system. You can instal
 
 ## Usage
 
+### `scrape(url:string,wait?:string | number): Promise<Scrape>`
+
+- **url** - Url of website to scrape
+- **wait** - Optional. Waits for the website to load, useful if the website needs to run some scripts before populating elements.
+
 ```javascript
-import { scrape } from "https://deno.land/x/scrape@v1.0.0/index.ts"; // non jsr import
-import { scrape } from "@panha/scrape/"; // jsr import
+// jsr import
+import { scrape } from "@panha/scrape/";
+
+// non jsr import
+import { scrape } from "https://deno.land/x/scrape@v1.1.0/index.ts";
 
 const scraper = await scrape(url);
+
+// Wait for 200ms
+const scraper = await scrape(url, 200);
+
+// Wait until an h1 element is loaded
+const scraper = await scrape(url, "h1");
 ```
 
 ### Methods
@@ -53,10 +67,13 @@ const attrList = scraper.attr("selector", "attribute");
 
 This method scrapes the data of the target table and returns an array of object.
 
-- **skip**: number of rows that consider header of the table - will use as object properties
+- **skip**: Number of rows to skip, usually the table header, which will be used as object properties.
 
 ```javascript
 const data = scraper.table("table");
+
+// Skip the first 2 rows of tbody
+const data = scraper.table("table", 2);
 ```
 
 ### Example
@@ -64,7 +81,7 @@ const data = scraper.table("table");
 Here's an example of how to use the `scrape` function to scrape data from a website:
 
 ```javascript
-import { scrape } from "https://deno.land/x/scrape@v1.0.0/index.ts";
+import { scrape } from "@panha/scrape/";
 
 const url = "https://example.com";
 try {
