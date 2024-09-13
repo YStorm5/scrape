@@ -1,4 +1,5 @@
 import { scrape } from "../index.ts";
 
-const src = await scrape("https://www.example.com/", 100);
-console.log(src.text("h1")); // [ "Example Domain" ]
+const url = "https://www.example.com";
+const scrapper = await scrape(url);
+console.log(scrapper.html("h1")); // [ "Example Domain" ]

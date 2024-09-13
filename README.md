@@ -1,32 +1,34 @@
 # Scrape
 
-Module to scrape data from a website using [Deno](https://deno.land/), [Deno Dom](https://jsr.io/@b-fuze/deno-dom) and [astral](https://jsr.io/@astral/astral@0.4.6/).
+Module to scrape data from a website using [Deno](https://deno.land/), [Deno Dom](https://jsr.io/@b-fuze/deno-dom) and [Astral](https://jsr.io/@astral/astral@0.4.6/).
 
 ## Installation
 
 To use this code, you need to have Deno installed on your system. You can install Deno by following the instructions at [deno.land](https://deno.land/).
 
+> If you're using Node.js, you can also install it via [npm](https://www.npmjs.com/package/@ystorm5/scrape).
+
 ## Usage
 
-### `scrape(url:string,wait?:string | number): Promise<Scrape>`
+### `scrape(url: string, options?: ScrapeOptions): Promise<Scrape>`
 
 - **url** - Url of website to scrape
-- **wait** - Optional. Waits for the website to load, useful if the website needs to run some scripts before populating elements.
+- **options** - Scrape options. If defined, Astral will be used, which requires Chromium.
 
 ```javascript
 // jsr import
 import { scrape } from "@panha/scrape/";
 
 // non jsr import
-import { scrape } from "https://deno.land/x/scrape@v1.1.0/index.ts";
+import { scrape } from "https://deno.land/x/scrape@v2.0.0/index.ts";
 
 const scraper = await scrape(url);
 
-// Wait for 200ms
-const scraper = await scrape(url, 200);
-
-// Wait until an h1 element is loaded
-const scraper = await scrape(url, "h1");
+// Wait for 1 second or wait for an <h1> element to appear
+await scrape("https://www.example.com", {
+  waitFor: 1000,
+  waitForElement: "h1",
+});
 ```
 
 ### Methods

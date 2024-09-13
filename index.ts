@@ -1,10 +1,7 @@
-import { DOMParser, type Element, type HTMLDocument } from "@b-fuze/deno-dom";
+import { DOMParser, type HTMLDocument, type Element } from "@b-fuze/deno-dom";
 import { removeBrackets, toCamelCase } from "./utils.ts";
-import { launch } from "@astral/astral";
-
-interface TableData {
-  [key: string]: string | number | TableData | undefined; // import Scrape from scape
-}
+import type { TableData, ScrapeOptions } from "./type.ts";
+import { type Browser, launch } from "@astral/astral";
 
 class Scrape {
   private doc: HTMLDocument;
@@ -165,34 +162,40 @@ class Scrape {
   }
 }
 /**
- * `function` to scrape data from website
- * @param url - Url of website to scrape
- * @param wait - Wait for website to load. This is useful if that website need to run some script first before populate element.
- * @example
- * // Wait for 1 second before fetching
- * await scrape("https://www.example.com",1000);
+ * Function to scrape data from a website.
  *
- * // Wait for specific html element to load
- * await scrape("https://www.example.com","h1");
+ * @param url - URL of the website to scrape.
+ * @param options - Scrape options. If defined, Astral will be used, which requires Chromium.
+ * @example
+ * await scrape("https://www.example.com");
+ *
+ * // Wait for 1 second or for an <h1> element to appear
+ * await scrape("https://www.example.com", {
+ *   waitFor: 1000,
+ *   waitForElement: "h1"
+ * });
  */
+
 export async function scrape(
   url: string,
-  wait?: number | string
+  options?: ScrapeOptions
 ): Promise<Scrape> {
   if (url == null) {
     throw "URL can't be empty!";
   }
   let html: string = "";
-  if (wait != null) {
-    const browser = await launch();
-    const page = await browser.newPage(url);
-    if (typeof wait == "number") {
-      await new Promise((r) => setTimeout(r, wait));
-    } else if (typeof wait == "string") {
-      await page.waitForSelector(wait);
+  // will use astral
+  if (options != undefined) {
+    const browser = await getBrowser(options);
+    if (browser != undefined) {
+      const page = await browser.newPage(url);
+      if (options.waitFor != undefined)
+        await new Promise((r) => setTimeout(r, options.waitFor));
+      if (options.waitForElement != undefined)
+        await page.waitForSelector(options.waitForElement);
+      html = await page.content();
+      await browser.close();
     }
-    html = await page.content();
-    await browser.close();
   } else {
     const req = await fetch(url);
     html = await req.text();
@@ -203,4 +206,29 @@ export async function scrape(
   );
   const cleanHtml = removeScript.replace(/\n/g, "");
   return new Scrape(cleanHtml);
+}
+
+async function getBrowser(options?: ScrapeOptions) {
+  let _browser: Browser;
+  if (options?.waitFor != undefined || options?.waitForElement != undefined) {
+    if (options?.path != undefined) {
+      // use existing chromium
+      _browser = await launch({
+        path: options.path,
+      });
+    } else if (options?.ws != undefined) {
+      // use remote browser
+      _browser = await launch({
+        wsEndpoint: options.ws,
+      });
+    } else {
+      _browser = await launch();
+    }
+  } else {
+    _browser = await launch({
+      path: options?.path,
+      wsEndpoint: options?.ws,
+    });
+  }
+  return _browser;
 }
