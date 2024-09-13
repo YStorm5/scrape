@@ -1,6 +1,6 @@
 import { DOMParser, type Element, type HTMLDocument } from "@b-fuze/deno-dom";
 import { removeBrackets, toCamelCase } from "./utils.ts";
-import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
+import { launch } from "@astral/astral";
 
 interface TableData {
   [key: string]: string | number | TableData | undefined; // import Scrape from scape
@@ -184,9 +184,8 @@ export async function scrape(
   }
   let html: string = "";
   if (wait != null) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(url);
+    const browser = await launch();
+    const page = await browser.newPage(url);
     if (typeof wait == "number") {
       await new Promise((r) => setTimeout(r, wait));
     } else if (typeof wait == "string") {

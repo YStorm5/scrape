@@ -1,6 +1,6 @@
 # Scrape
 
-Module to scrape data from a website using [Deno](https://deno.land/), [Deno Dom](https://jsr.io/@b-fuze/deno-dom) and [Puppeteer](https://deno.land/x/puppeteer@16.2.0).
+Module to scrape data from a website using [Deno](https://deno.land/), [Deno Dom](https://jsr.io/@b-fuze/deno-dom) and [astral](https://jsr.io/@astral/astral@0.4.6/).
 
 ## Installation
 
