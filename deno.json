@@ -1,9 +1,9 @@
 {
-  "name": "@panha/scrape",
-  "version": "2.0.0",
-  "exports": "./index.ts",
-  "imports": {
-    "@astral/astral": "jsr:@astral/astral@^0.4.6",
-    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.48"
-  }
+    "name": "@panha/scrape",
+    "version": "2.1.0",
+    "exports": "./index.ts",
+    "imports": {
+        "@astral/astral": "jsr:@astral/astral@^0.4.6",
+        "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.48"
+    }
 }

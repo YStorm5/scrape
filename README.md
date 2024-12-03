@@ -12,22 +12,22 @@ To use this code, you need to have Deno installed on your system. You can instal
 
 ### `scrape(url: string, options?: ScrapeOptions): Promise<Scrape>`
 
-- **url** - Url of website to scrape
-- **options** - Scrape options. If defined, Astral will be used, which requires Chromium.
+-   **url** - Url of website to scrape
+-   **options** - Scrape options. If defined, Astral will be used, which requires Chromium.
 
 ```javascript
 // jsr import
 import { scrape } from "@panha/scrape/";
 
 // non jsr import
-import { scrape } from "https://deno.land/x/scrape@v2.0.0/index.ts";
+import { scrape } from "https://deno.land/x/scrape@v2.1.0/index.ts";
 
 const scraper = await scrape(url);
 
 // Wait for 1 second or wait for an <h1> element to appear
 await scrape("https://www.example.com", {
-  waitFor: 1000,
-  waitForElement: "h1",
+    waitFor: 1000,
+    waitForElement: "h1",
 });
 ```
 
@@ -65,11 +65,11 @@ This method scrapes the specified attribute of the target element(s) matching th
 const attrList = scraper.attr("selector", "attribute");
 ```
 
-#### `table(selector: string, skip?: number): TableData[]`
+#### `table(selector: string, skip: number): TableData[]`
 
 This method scrapes the data of the target table and returns an array of object.
 
-- **skip**: Number of rows to skip, usually the table header, which will be used as object properties.
+-   **skip**: Number of rows to skip, usually the table header, which will be used as object properties.
 
 ```javascript
 const data = scraper.table("table");
@@ -87,10 +87,10 @@ import { scrape } from "@panha/scrape/";
 
 const url = "https://example.com";
 try {
-  const scraper = await scrape(url);
-  const titleList = scraper.text("h1");
-  console.log(titleList);
+    const scraper = await scrape(url);
+    const titleList = scraper.text("h1");
+    console.log(titleList);
 } catch (error) {
-  console.error(error);
+    console.error(error);
 }
 ```

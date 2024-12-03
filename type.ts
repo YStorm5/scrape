@@ -14,3 +14,9 @@ export interface ScrapeOptions {
   waitFor?: number;
   waitForElement?: string;
 }
+
+export interface Data {
+  row: number;
+  col: number;
+  value: string;
+}

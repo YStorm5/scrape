@@ -1,5 +1,9 @@
-import { DOMParser, type HTMLDocument, type Element } from "@b-fuze/deno-dom";
-import { removeBrackets, toCamelCase } from "./utils.ts";
+import { DOMParser, type Element, type HTMLDocument } from "@b-fuze/deno-dom";
+import {
+  extractColumnMap,
+  extractTableData,
+  generateColumnLayout,
+} from "./utils.ts";
 import type { TableData, ScrapeOptions } from "./type.ts";
 import { type Browser, launch } from "@astral/astral";
 
@@ -82,83 +86,18 @@ class Scrape {
   /**
    * Scrape data from target `table` element.
    * @param {string} selector - The CSS selector of the target table element.
-   * @param {number} [skip] - Indicate how many rows to consider as header inside `<tbody>`. If the table has `<thead>`, this parameter is not required.
+   * @param {number} [skip] - Indicate how many rows to consider as header inside `<table>`.
    * @returns TableData[] - An array of TableData.
    */
-  table(selector: string, skip?: number): TableData[] {
-    const _table = this.doc.querySelector(selector);
-    const _rows: Element[] = [];
-    const _skipRows: Element[] = [];
-    let _skip = skip ?? 0;
-    let _hasHead = false;
-
-    // check if there thead
-    if (_table == null) throw new Error("There is no target table");
-    const _tbody = _table.querySelector("tbody");
-    if (_tbody == null) throw new Error("There is no tbody inside the table");
-    const _thead = _table.children;
-    for (const ele of _thead) {
-      if (ele.nodeName == "THEAD") {
-        _hasHead = true;
-        (ele as Element).querySelectorAll("tr").forEach((e) => {
-          const _element = e as Element;
-          _skipRows.push(_element);
-        });
-        _skip = _skipRows.length;
-        break;
-      }
-    }
-    _tbody.querySelectorAll("tr").forEach((e, i) => {
-      const _element = e as Element;
-      if (!_hasHead) {
-        if (i < _skip) _skipRows.push(_element);
-        else _rows.push(_element);
-      } else {
-        _rows.push(_element);
-      }
-    });
-    function generateColumn(i: number, _value: string[], _cols?: number) {
-      const _header: TableData = {};
-      if (i < _skipRows.length) {
-        const childrens = Array.from(_skipRows[i].children); // 3
-        let same = true;
-        childrens.slice(0, _cols ?? childrens.length).forEach((v) => {
-          const col = v as Element;
-          const colSpan = col.getAttribute("colspan") ?? 1;
-          const _cols = +colSpan; // 5
-          if (_cols == 1) {
-            _header[toCamelCase(removeBrackets(col.innerText))] = _value
-              .shift()
-              ?.toString()
-              .trim();
-          } else {
-            if (same) {
-              ++i;
-              same = false;
-            }
-            _header[toCamelCase(removeBrackets(col.innerText))] =
-              generateColumn(i, _value, _cols);
-          }
-        });
-      }
-      return _header;
-    }
-
-    const tds = _rows?.splice(0, _rows.length).map((e) => {
-      const rows: string[] = [];
-      for (const v of e.children) {
-        const el = v as Element;
-        const colSpan = el.getAttribute("colspan") ?? 1;
-        const cols = +colSpan;
-        Array(cols)
-          .fill(el.innerText)
-          .forEach((v) => {
-            rows.push(removeBrackets(v));
-          });
-      }
-      return generateColumn(0, rows);
-    });
-    return tds;
+  table(selector: string, skip: number): TableData[] {
+    const table: Element | null = this.doc.querySelector(selector);
+    if (!table) throw new Error("No table found with the given selector");
+    const tbody = table.querySelector("tbody");
+    if (!tbody) throw new Error("No tbody found in the table");
+    const columnMap = extractColumnMap(table, skip);
+    // generate column
+    const columnLayout = generateColumnLayout(columnMap, 0, 0, "");
+    return extractTableData(tbody, columnLayout, skip);
   }
 }
 /**
