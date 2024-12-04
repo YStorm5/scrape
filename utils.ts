@@ -1,4 +1,4 @@
-import { DOMParser, type Element } from "@b-fuze/deno-dom";
+import type { Element } from "@b-fuze/deno-dom";
 import type { Data, TableData } from "./type.ts";
 
 /**
@@ -42,41 +42,49 @@ export function extractColumnMap(table: Element, skipRows: number): Data[][] {
     : Array.from(table.querySelectorAll("tr"));
 
   const columnMap: Data[][] = [];
+  let nextRow: Data[] = [];
   for (let trIndex = 0; trIndex < skipRows; trIndex++) {
-    const rows: Data[] = [];
+    const rows: Data[] = nextRow;
+    nextRow = [];
     const tr = Array.from(_thead[trIndex]?.children || []);
     let totalCols = 0;
+    const existCols = rows.map((x) => x.col);
 
     for (let thIndex = 0; thIndex < tr.length; thIndex++) {
       const th = tr[thIndex];
-      const colspan = parseInt(th.getAttribute("colspan") || "1", 10);
+      const colspan = parseInt(th.getAttribute("colspan") || "1", 10); // 1
       const rowspan = parseInt(th.getAttribute("rowspan") || "1", 10);
-      if (th.innerText === "") {
-        totalCols += 1;
-        continue;
-      } //
+
+      totalCols += colspan;
+      existCols.forEach((x) => {
+        if (x === totalCols) {
+          totalCols += 1;
+        }
+      });
+
       const cell: Data = {
         row: trIndex + 1,
-        col: (totalCols += colspan),
+        col: totalCols,
         value: toCamelCase(cleanText(th.innerText.trim())),
       };
 
-      // add empty th to next row if rowspan > 1
-      if (rowspan > 1) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(
-          "<table><tr></tr></table>",
-          "text/html"
-        );
-        const thEl = doc!.createElement("th");
-        for (let rowSpanIndex = 1; rowSpanIndex < rowspan; rowSpanIndex++) {
-          _thead[trIndex + rowSpanIndex]!.prepend(thEl);
-        }
+      for (let rowSpanIndex = 1; rowSpanIndex < rowspan; rowSpanIndex++) {
+        nextRow.push({
+          ...cell,
+          row: rowSpanIndex + 1,
+        });
       }
 
       rows.push(cell);
     }
-    columnMap.push(rows);
+    const newRows = rows
+      .sort((a, b) => a.col - b.col)
+      .filter((x) => {
+        if (!existCols.includes(x.col)) {
+          return x;
+        }
+      });
+    columnMap.push(newRows);
   }
 
   return columnMap;
