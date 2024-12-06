@@ -35,11 +35,10 @@ export function cleanText(input: string): string {
  */
 export function extractColumnMap(table: Element, skipRows: number): Data[][] {
   const thead = table.querySelector("thead");
-  const _thead = thead
-    ? Array.from(thead.children).concat(
-        Array.from(thead.querySelectorAll("tr"))
-      )
-    : Array.from(table.querySelectorAll("tr"));
+  const _thead =
+    thead != null
+      ? Array.from(thead.children)
+      : Array.from(table.querySelector("tbody")!.children);
 
   const columnMap: Data[][] = [];
   let nextRow: Data[] = [];
@@ -133,17 +132,22 @@ export function generateColumnLayout(
 
 /**
  * Extract table data into structured format
- * @param tbody - Table body element
+ * @param table - Table element
  * @param columnLayout - Generated column layout
  * @param skipRows - Number of header rows to skip
  * @returns Parsed table data
  */
 export function extractTableData(
-  tbody: Element,
+  table: Element,
   columnLayout: TableData | string,
   skipRows: number
 ): TableData[] {
-  const rows = Array.from(tbody.querySelectorAll("tr")).slice(skipRows);
+  const thead = table.querySelector("thead");
+  const tbody = table.querySelector("tbody")!;
+  const rows =
+    thead != null
+      ? Array.from(tbody.querySelectorAll("tr"))
+      : Array.from(tbody.querySelectorAll("tr")).splice(skipRows);
   const existedRow: Data[] = [];
 
   return rows.map((row, trIndex) => {

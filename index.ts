@@ -95,11 +95,8 @@ class Scrape {
     const tbody = table.querySelector("tbody");
     if (!tbody) throw new Error("No tbody found in the table");
     const columnMap = extractColumnMap(table, skip);
-    console.log(columnMap);
-    // generate column
     const columnLayout = generateColumnLayout(columnMap, 0, 0, "");
-    console.log(columnLayout);
-    return extractTableData(tbody, columnLayout, skip);
+    return extractTableData(table, columnLayout, skip);
   }
 }
 /**
