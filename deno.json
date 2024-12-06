@@ -1,6 +1,6 @@
 {
     "name": "@panha/scrape",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "exports": "./index.ts",
     "imports": {
         "@astral/astral": "jsr:@astral/astral@0.4.6",
